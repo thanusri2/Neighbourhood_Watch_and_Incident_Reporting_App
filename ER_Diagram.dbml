@@ -1,0 +1,68 @@
+Table Users {
+  user_id int [pk, increment]
+  full_name varchar
+  email varchar [unique]
+  password varchar
+  phone_number varchar
+  role varchar
+  created_at datetime
+}
+
+Table Residents {
+  resident_id int [pk, increment]
+  user_id int [ref: - Users.user_id]
+  apartment_number varchar
+  block varchar
+}
+
+Table Security_Guards {
+  guard_id int [pk, increment]
+  user_id int [ref: - Users.user_id]
+  badge_number varchar
+  shift varchar
+}
+
+Table Incident_Categories {
+  category_id int [pk, increment]
+  category_name varchar
+}
+
+Table Incidents {
+  incident_id int [pk, increment]
+  resident_id int [ref: > Residents.resident_id]
+  category_id int [ref: > Incident_Categories.category_id]
+  title varchar
+  description text
+  status varchar
+  reported_date datetime
+  location varchar
+}
+
+Table Evidence {
+  evidence_id int [pk, increment]
+  incident_id int [ref: > Incidents.incident_id]
+  image_path varchar
+  uploaded_at datetime
+}
+
+Table Incident_Assignments {
+  assignment_id int [pk, increment]
+  incident_id int [ref: > Incidents.incident_id]
+  guard_id int [ref: > Security_Guards.guard_id]
+  assigned_date datetime
+}
+
+Table Notifications {
+  notification_id int [pk, increment]
+  user_id int [ref: > Users.user_id]
+  message text
+  is_read boolean
+  created_at datetime
+}
+
+Table Activity_Logs {
+  log_id int [pk, increment]
+  user_id int [ref: > Users.user_id]
+  activity varchar
+  timestamp datetime
+}
