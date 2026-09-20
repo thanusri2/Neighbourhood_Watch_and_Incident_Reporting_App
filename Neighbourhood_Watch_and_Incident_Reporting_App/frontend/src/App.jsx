@@ -1,80 +1,27 @@
 import { useState } from "react";
 import "./App.css";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
 import AdminDashboard from "./AdminDashboard";
 import Users from "./Users";
 import Incidents from "./Incidents";
 import Watchmen from "./Watchmen";
+import Reports from "./report";
+import Assignments from "./Assignments";
+import InchargeDashboard from "./InchargeDashboard";
+import WatchmanDashboard from "./WatchmanDashboard";
+import ResidentDashboard from "./ResidentDashboard";
 
-function App() {
+function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-
-  const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
-  const userRole = sessionStorage.getItem("userRole");
-
-  const goToLogin = () => {
-    sessionStorage.clear();
-    window.location.href = "/";
-  };
-
-  // Protect Admin Dashboard
-  if (window.location.pathname === "/admin-dashboard") {
-    if (!isLoggedIn || userRole !== "ADMIN") {
-      return (
-        <div style={{ padding: "40px", textAlign: "center" }}>
-          <h2>Access Denied</h2>
-          <p>Please login as an administrator.</p>
-          <button onClick={goToLogin}>Go to Login</button>
-        </div>
-      );
-    }
-
-    return <AdminDashboard />;
-  }
-
-  // Protect Users page
-  if (window.location.pathname === "/users") {
-    if (!isLoggedIn || userRole !== "ADMIN") {
-      return (
-        <div style={{ padding: "40px", textAlign: "center" }}>
-          <h2>Access Denied</h2>
-          <button onClick={goToLogin}>Go to Login</button>
-        </div>
-      );
-    }
-
-    return <Users />;
-  }
-
-  // Protect Watchmen page
-  if (window.location.pathname === "/watchmen") {
-    if (!isLoggedIn || userRole !== "ADMIN") {
-      return (
-        <div style={{ padding: "40px", textAlign: "center" }}>
-          <h2>Access Denied</h2>
-          <button onClick={goToLogin}>Go to Login</button>
-        </div>
-      );
-    }
-
-    return <Watchmen />;
-  }
-
-  // Protect Incidents page
-  if (window.location.pathname === "/incidents") {
-    if (!isLoggedIn || userRole !== "ADMIN") {
-      return (
-        <div style={{ padding: "40px", textAlign: "center" }}>
-          <h2>Access Denied</h2>
-          <button onClick={goToLogin}>Go to Login</button>
-        </div>
-      );
-    }
-
-    return <Incidents />;
-  }
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -86,7 +33,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:1573/api/users/login/",
+        "http://127.0.0.1:8000/api/users/login/",
         {
           method: "POST",
           headers: {
@@ -106,13 +53,15 @@ function App() {
         return;
       }
 
-      // Store only non-sensitive login state.
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("username", data.username);
       sessionStorage.setItem("userRole", data.role);
 
       if (rememberMe) {
-        localStorage.setItem("rememberUsername", username.trim());
+        localStorage.setItem(
+          "rememberUsername",
+          username.trim()
+        );
       } else {
         localStorage.removeItem("rememberUsername");
       }
@@ -121,13 +70,14 @@ function App() {
         `Login successful!\nWelcome ${data.username}\nRole: ${data.role}`
       );
 
-      // Redirect based on role
       if (data.role === "ADMIN") {
         window.location.href = "/admin-dashboard";
       } else if (data.role === "RESIDENT") {
         window.location.href = "/resident-dashboard";
       } else if (data.role === "WATCHMAN") {
         window.location.href = "/watchman-dashboard";
+      } else if (data.role === "INCHARGE") {
+        window.location.href = "/incharge-dashboard";
       } else {
         alert("Unknown user role.");
         sessionStorage.clear();
@@ -141,7 +91,6 @@ function App() {
   return (
     <div className="page">
 
-      {/* LEFT SIDE */}
       <div className="image-section">
 
         <img
@@ -160,7 +109,6 @@ function App() {
 
       </div>
 
-      {/* RIGHT SIDE */}
       <div className="login-section">
 
         <div className="login-box">
@@ -173,7 +121,6 @@ function App() {
 
           <form onSubmit={handleLogin}>
 
-            {/* Username */}
             <div className="input-group">
 
               <label>Username</label>
@@ -188,7 +135,6 @@ function App() {
 
             </div>
 
-            {/* Password */}
             <div className="input-group">
 
               <label>Password</label>
@@ -206,7 +152,9 @@ function App() {
                 <button
                   type="button"
                   className="show-password"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
@@ -215,7 +163,6 @@ function App() {
 
             </div>
 
-            {/* Remember + Forgot */}
             <div className="options">
 
               <label className="remember">
@@ -236,7 +183,9 @@ function App() {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  alert("Please contact the administrator to reset your password.");
+                  alert(
+                    "Please contact the administrator to reset your password."
+                  );
                 }}
               >
                 Forgot Password?
@@ -244,7 +193,6 @@ function App() {
 
             </div>
 
-            {/* Login */}
             <button
               type="submit"
               className="login-button"
@@ -254,7 +202,6 @@ function App() {
 
           </form>
 
-          {/* Register */}
           <p className="signup">
 
             Don't have an account?
@@ -263,7 +210,9 @@ function App() {
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                alert("Registration is currently handled by the administrator.");
+                alert(
+                  "Registration is currently handled by the administrator."
+                );
               }}
             >
               {" "}Register
@@ -276,6 +225,110 @@ function App() {
       </div>
 
     </div>
+  );
+}
+
+function ProtectedRoute({ children }) {
+  const isLoggedIn =
+    sessionStorage.getItem("isLoggedIn") === "true";
+
+  const userRole =
+    sessionStorage.getItem("userRole");
+
+  if (!isLoggedIn || userRole !== "ADMIN") {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+
+      <Routes>
+
+        <Route path="/" element={<Login />} />
+
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <Users />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/incidents"
+          element={
+            <ProtectedRoute>
+              <Incidents />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/watchmen"
+          element={
+            <ProtectedRoute>
+              <Watchmen />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route 
+          path="/assignments" 
+          element={ 
+            <ProtectedRoute> 
+              <Assignments /> 
+            </ProtectedRoute> 
+          } 
+        />
+        <Route
+          path="/incharge-dashboard"
+          element={
+            <InchargeDashboard />
+          }
+        />
+        <Route
+          path="/watchman-dashboard"
+          element={
+            <WatchmanDashboard />
+          }
+        />
+        <Route
+          path="/resident-dashboard"
+          element={
+            <ResidentDashboard />
+          }
+        />
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
+
+      </Routes>
+
+    </BrowserRouter>
   );
 }
 

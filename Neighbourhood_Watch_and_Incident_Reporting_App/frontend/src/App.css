@@ -543,3 +543,299 @@ body {
   font-size: 25px;
   margin-bottom: 8px;
 }
+/* ========================================
+   MANAGE USERS PAGE
+======================================== */
+
+.users-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 35px;
+  font-family: Arial, sans-serif;
+}
+
+/* Header */
+
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.page-label {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.users-header h1 {
+  color: #172554;
+  font-size: 32px;
+  margin: 0;
+}
+
+.page-description {
+  color: #64748b;
+  margin-top: 8px;
+  font-size: 15px;
+}
+
+/* Dashboard button */
+
+.back-button {
+  border: none;
+  background: #172554;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.back-button:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Main card */
+
+.users-card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 5px 20px rgba(15, 23, 42, 0.07);
+}
+
+/* Card header */
+
+.users-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.users-card-header h2 {
+  margin: 0;
+  color: #172554;
+  font-size: 21px;
+}
+
+.users-card-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Total users */
+
+.users-count-card {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  padding: 12px 22px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.users-count-card span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.users-count-card strong {
+  display: block;
+  color: #2563eb;
+  font-size: 24px;
+}
+
+/* Table */
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 750px;
+}
+
+.users-table thead {
+  background: #f8fafc;
+}
+
+.users-table th {
+  padding: 14px 16px;
+  text-align: left;
+  color: #64748b;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.users-table td {
+  padding: 16px;
+  color: #334155;
+  font-size: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.users-table tbody tr {
+  transition: 0.2s;
+}
+
+.users-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* User */
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #2563eb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.user-info strong {
+  color: #172554;
+}
+
+.user-id {
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Role badges */
+
+.role-badge {
+  display: inline-block;
+  padding: 5px 11px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.3px;
+}
+
+/* Admin */
+
+.role-badge.admin {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+/* Resident */
+
+.role-badge.resident {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* Watchman */
+
+.role-badge.watchman {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Incharge */
+
+.role-badge.incharge {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+/* Active */
+
+.active-badge {
+  display: inline-block;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Inactive */
+
+.inactive-badge {
+  display: inline-block;
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Messages */
+
+.users-message {
+  background: white;
+  padding: 35px;
+  border-radius: 14px;
+  text-align: center;
+  color: #64748b;
+  box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
+}
+
+.users-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 15px 18px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 800px) {
+
+  .users-page {
+    padding: 20px;
+  }
+
+  .users-header {
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .users-header h1 {
+    font-size: 26px;
+  }
+
+  .users-card-header {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .users-count-card {
+    padding: 10px 15px;
+  }
+
+}

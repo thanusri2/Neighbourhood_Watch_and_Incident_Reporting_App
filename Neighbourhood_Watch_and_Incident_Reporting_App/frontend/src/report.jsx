@@ -1,69 +1,62 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Watchmen() {
+const API_BASE = "http://127.0.0.1:8000";
+
+function Reports() {
   const navigate = useNavigate();
 
-  const [users, setUsers] = useState([]);
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchIncidents = async () => {
       try {
-        const [usersResponse, incidentsResponse] =
-          await Promise.all([
-            fetch(
-              "http://127.0.0.1:8000/api/users/list/"
-            ),
-            fetch(
-              "http://127.0.0.1:8000/api/incidents/list/"
-            ),
-          ]);
+        const response = await fetch(
+          `${API_BASE}/api/incidents/list/`
+        );
 
-        if (!usersResponse.ok) {
-          throw new Error("Failed to fetch users");
-        }
-
-        if (!incidentsResponse.ok) {
+        if (!response.ok) {
           throw new Error("Failed to fetch incidents");
         }
 
-        const usersData = await usersResponse.json();
-        const incidentsData = await incidentsResponse.json();
-
-        setUsers(
-          Array.isArray(usersData)
-            ? usersData
-            : usersData.results || []
-        );
+        const data = await response.json();
 
         setIncidents(
-          Array.isArray(incidentsData)
-            ? incidentsData
-            : incidentsData.results || []
+          Array.isArray(data)
+            ? data
+            : data.results || []
         );
 
-        setLoading(false);
       } catch (error) {
-        console.error(error);
+        console.error("Reports fetch error:", error);
         setError("Cannot connect to Django server");
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchIncidents();
   }, []);
 
-  const watchmen = users.filter(
-    (user) => user.role === "WATCHMAN"
-  );
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "RESOLVED":
+        return "resolved";
 
-  const getAssignedCount = (username) => {
-    return incidents.filter(
-      (incident) => incident.watchman === username
-    ).length;
+      case "CLOSED":
+        return "closed";
+
+      case "UNDER_INVESTIGATION":
+        return "investigating";
+
+      case "ASSIGNED":
+        return "assigned";
+
+      default:
+        return "pending";
+    }
   };
 
   return (
@@ -103,7 +96,11 @@ function Watchmen() {
             🚨 Incidents
           </button>
 
-          <button className="active">
+          <button
+            onClick={() =>
+              navigate("/watchmen")
+            }
+          >
             👮 Watchmen
           </button>
 
@@ -115,11 +112,7 @@ function Watchmen() {
             📌 Assignments
           </button>
 
-          <button
-            onClick={() =>
-              navigate("/reports")
-            }
-          >
+          <button className="active">
             📊 Reports
           </button>
 
@@ -144,11 +137,10 @@ function Watchmen() {
         <header className="admin-header">
 
           <div>
-            <h1>Watchmen</h1>
+            <h1>Incident Progress Reports</h1>
 
             <p>
-              Manage neighbourhood watchmen and
-              monitor their assigned incidents.
+              Monitor incident status and investigation progress.
             </p>
           </div>
 
@@ -167,16 +159,17 @@ function Watchmen() {
 
         </header>
 
-        {/* WATCHMEN SECTION */}
+        {/* REPORTS SECTION */}
         <section className="dashboard-section">
 
           <div className="section-header">
 
             <div>
-              <h2>All Watchmen</h2>
+              <h2>Incident Progress</h2>
 
               <p>
-                View watchman details and assignment status.
+                Track the current status and progress of
+                reported incidents.
               </p>
             </div>
 
@@ -192,7 +185,7 @@ function Watchmen() {
 
           {/* LOADING */}
           {loading && (
-            <p>Loading watchmen...</p>
+            <p>Loading reports...</p>
           )}
 
           {/* ERROR */}
@@ -205,14 +198,16 @@ function Watchmen() {
           {/* EMPTY */}
           {!loading &&
             !error &&
-            watchmen.length === 0 && (
-              <p>No watchmen found.</p>
+            incidents.length === 0 && (
+              <p>
+                No incident reports available.
+              </p>
             )}
 
-          {/* WATCHMEN TABLE */}
+          {/* REPORT TABLE */}
           {!loading &&
             !error &&
-            watchmen.length > 0 && (
+            incidents.length > 0 && (
 
               <div className="incident-table">
 
@@ -221,81 +216,113 @@ function Watchmen() {
                   className="table-header"
                   style={{
                     gridTemplateColumns:
-                      "0.6fr 1.2fr 1.5fr 1.2fr 1fr 1fr",
+                      "1.5fr 1.2fr 1.2fr 1.2fr 1.2fr 1.2fr",
                   }}
                 >
 
-                  <span>ID</span>
+                  <span>Incident</span>
 
-                  <span>Username</span>
+                  <span>Category</span>
 
-                  <span>Email</span>
+                  <span>Resident</span>
 
-                  <span>Phone</span>
-
-                  <span>Incidents</span>
+                  <span>Watchman</span>
 
                   <span>Status</span>
+
+                  <span>Progress</span>
 
                 </div>
 
                 {/* TABLE ROWS */}
-                {watchmen.map((watchman) => {
+                {incidents.map((incident) => {
 
-                  const assignedCount =
-                    getAssignedCount(
-                      watchman.username
-                    );
+                  const progress =
+                    incident.progress || 0;
 
                   return (
 
                     <div
                       className="table-row"
-                      key={watchman.id}
+                      key={incident.id}
                       style={{
                         gridTemplateColumns:
-                          "0.6fr 1.2fr 1.5fr 1.2fr 1fr 1fr",
+                          "1.5fr 1.2fr 1.2fr 1.2fr 1.2fr 1.2fr",
                       }}
                     >
 
-                      {/* ID */}
-                      <span>
-                        #{watchman.id}
-                      </span>
-
-                      {/* USERNAME */}
+                      {/* INCIDENT */}
                       <span>
                         <strong>
-                          {watchman.username}
+                          {incident.title}
                         </strong>
                       </span>
 
-                      {/* EMAIL */}
+                      {/* CATEGORY */}
                       <span>
-                        {watchman.email || "---"}
+                        {incident.category}
                       </span>
 
-                      {/* PHONE */}
+                      {/* RESIDENT */}
                       <span>
-                        {watchman.phone || "---"}
+                        {incident.resident}
                       </span>
 
-                      {/* INCIDENT COUNT */}
+                      {/* WATCHMAN */}
                       <span>
-                        {assignedCount}
+                        {incident.watchman ||
+                          "Not Assigned"}
                       </span>
 
                       {/* STATUS */}
-                      <span
-                        className={
-                          watchman.is_active
-                            ? "status resolved"
-                            : "status pending"
-                        }
-                      >
-                        {watchman.is_active
-                          ? "Active"
-                          : "Inactive"}
+                      <span>
+                        <span
+                          className={`status ${getStatusClass(
+                            incident.status
+                          )}`}
+                        >
+                          {incident.status}
+                        </span>
+                      </span>
+
+                      {/* PROGRESS */}
+                      <span>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
+
+                          <div
+                            style={{
+                              width: "80px",
+                              height: "8px",
+                              background: "#e5e7eb",
+                              borderRadius: "5px",
+                              overflow: "hidden",
+                            }}
+                          >
+
+                            <div
+                              style={{
+                                width: `${progress}%`,
+                                height: "100%",
+                                background: "#22c55e",
+                                borderRadius: "5px",
+                              }}
+                            />
+
+                          </div>
+
+                          <span>
+                            {progress}%
+                          </span>
+
+                        </div>
+
                       </span>
 
                     </div>
@@ -309,14 +336,14 @@ function Watchmen() {
 
         </section>
 
-        {/* WATCHMAN SUMMARY */}
+        {/* REPORT SUMMARY */}
         {!loading &&
           !error &&
-          watchmen.length > 0 && (
+          incidents.length > 0 && (
 
             <section className="dashboard-section">
 
-              <h2>Watchman Summary</h2>
+              <h2>Report Summary</h2>
 
               <div className="quick-actions">
 
@@ -328,17 +355,19 @@ function Watchmen() {
                     background: "#ffffff",
                   }}
                 >
+
                   <h3>
-                    👮 Total Watchmen
+                    🚨 Total Incidents
                   </h3>
 
                   <h2>
-                    {watchmen.length}
+                    {incidents.length}
                   </h2>
 
                   <p>
-                    Registered watchmen in the system.
+                    Total incidents currently recorded.
                   </p>
+
                 </div>
 
                 <div
@@ -349,48 +378,83 @@ function Watchmen() {
                     background: "#ffffff",
                   }}
                 >
+
                   <h3>
-                    🟢 Active Watchmen
-                  </h3>
-
-                  <h2>
-                    {
-                      watchmen.filter(
-                        (watchman) =>
-                          watchman.is_active
-                      ).length
-                    }
-                  </h2>
-
-                  <p>
-                    Currently active watchmen.
-                  </p>
-                </div>
-
-                <div
-                  style={{
-                    padding: "20px",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "12px",
-                    background: "#ffffff",
-                  }}
-                >
-                  <h3>
-                    📌 Assigned Incidents
+                    🔍 Under Investigation
                   </h3>
 
                   <h2>
                     {
                       incidents.filter(
                         (incident) =>
-                          incident.watchman
+                          incident.status ===
+                          "UNDER_INVESTIGATION"
                       ).length
                     }
                   </h2>
 
                   <p>
-                    Incidents currently linked to watchmen.
+                    Incidents currently being investigated.
                   </p>
+
+                </div>
+
+                <div
+                  style={{
+                    padding: "20px",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "12px",
+                    background: "#ffffff",
+                  }}
+                >
+
+                  <h3>
+                    ✅ Resolved
+                  </h3>
+
+                  <h2>
+                    {
+                      incidents.filter(
+                        (incident) =>
+                          incident.status ===
+                          "RESOLVED"
+                      ).length
+                    }
+                  </h2>
+
+                  <p>
+                    Incidents successfully resolved.
+                  </p>
+
+                </div>
+
+                <div
+                  style={{
+                    padding: "20px",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "12px",
+                    background: "#ffffff",
+                  }}
+                >
+
+                  <h3>
+                    📁 Closed
+                  </h3>
+
+                  <h2>
+                    {
+                      incidents.filter(
+                        (incident) =>
+                          incident.status ===
+                          "CLOSED"
+                      ).length
+                    }
+                  </h2>
+
+                  <p>
+                    Incidents that have been closed.
+                  </p>
+
                 </div>
 
               </div>
@@ -404,5 +468,4 @@ function Watchmen() {
     </div>
   );
 }
-
-export default Watchmen;
+export default Reports;

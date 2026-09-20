@@ -1,31 +1,34 @@
 import { useEffect, useState } from "react";
-
-const API_BASE = "http://127.0.0.1:1573";
+import { useNavigate } from "react-router-dom";
+const API_BASE = "http://127.0.0.1:8000";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   const [incidents, setIncidents] = useState([]);
   const [users, setUsers] = useState([]);
+  const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [incidentsResponse, usersResponse] = await Promise.all([
-          fetch(`${API_BASE}/api/incidents/list/`),
-          fetch(`${API_BASE}/api/users/list/`),
-        ]);
-
+        const [incidentsResponse,usersResponse,dashboardResponse,] = await Promise.all([
+  		fetch(`${API_BASE}/api/incidents/list/`),
+  		fetch(`${API_BASE}/api/users/list/`),
+  		fetch(`${API_BASE}/api/users/dashboard/`),
+	]);
         if (!incidentsResponse.ok) {
           throw new Error("Failed to fetch incidents");
         }
-
         if (!usersResponse.ok) {
           throw new Error("Failed to fetch users");
         }
-
+	if (!dashboardResponse.ok) {
+  	  throw new Error("Failed to fetch dashboard");
+	}
         const incidentsData = await incidentsResponse.json();
-        const usersData = await usersResponse.json();
-
+	const usersData = await usersResponse.json();
+	const dashboardData = await dashboardResponse.json();
+	setDashboard(dashboardData);
         setIncidents(
           Array.isArray(incidentsData)
             ? incidentsData
@@ -43,7 +46,6 @@ function AdminDashboard() {
         setLoading(false);
       }
     };
-
     fetchDashboardData();
   }, []);
 
@@ -51,11 +53,14 @@ function AdminDashboard() {
     (user) => user.role === "WATCHMAN"
   );
 
-  const pendingIncidents = incidents.filter(
-    (incident) =>
-      incident.status !== "RESOLVED" &&
-      incident.status !== "CLOSED"
+  const pendingIncidents = incidents.filter((incident) => {
+  const status = incident.status?.toUpperCase();
+
+  return (
+    status !== "RESOLVED" &&
+    status !== "CLOSED"
   );
+});
 
   return (
     <div className="admin-page">
@@ -74,45 +79,30 @@ function AdminDashboard() {
             🏠 Dashboard
           </button>
 
-          <button
-            onClick={() => {
-              window.location.href = "/users";
-            }}
-          >
+          <button onClick={() => navigate("/users")}>
             👥 Users
           </button>
 
-          <button
-            onClick={() => {
-              window.location.href = "/incidents";
-            }}
-          >
+          <button onClick={() => navigate("/incidents")}>
             🚨 Incidents
           </button>
 
-          <button
-            onClick={() => {
-              window.location.href = "/watchmen";
-            }}
-          >
+          <button onClick={() => navigate("/watchmen")}>
             👮 Watchmen
           </button>
-
-          <button>
+          <button onClick={() => navigate("/assignments")}>
             📌 Assignments
           </button>
-
-          <button>
+          <button onClick={() => navigate("/reports")}>
             📊 Reports
           </button>
-
         </nav>
 
         <button
           className="logout-button"
           onClick={() => {
             sessionStorage.clear();
-            window.location.href = "/";
+            navigate("/");
           }}
         >
           🚪 Logout
@@ -174,7 +164,7 @@ function AdminDashboard() {
             <div>
               <p>Total Users</p>
               <h2>
-                {loading ? "..." : users.length}
+                {loading ? "..." : dashboard?.total_users}
               </h2>
             </div>
 
@@ -189,7 +179,7 @@ function AdminDashboard() {
             <div>
               <p>Total Incidents</p>
               <h2>
-                {loading ? "..." : incidents.length}
+                {loading ? "..." : dashboard?.total_incidents}
               </h2>
             </div>
 
@@ -219,7 +209,7 @@ function AdminDashboard() {
             <div>
               <p>Pending Incidents</p>
               <h2>
-                {loading ? "..." : pendingIncidents.length}
+                {loading ? "..." : dashboard?.pending_incidents}
               </h2>
             </div>
 
@@ -229,16 +219,9 @@ function AdminDashboard() {
 
         {/* RECENT INCIDENTS */}
         <section className="dashboard-section">
-
           <div className="section-header">
-
             <h2>Recent Incidents</h2>
-
-            <button
-              onClick={() => {
-                window.location.href = "/incidents";
-              }}
-            >
+            <button onClick={() => navigate("/incidents")}>
               View All
             </button>
 
@@ -257,7 +240,7 @@ function AdminDashboard() {
 
               <div
                 className="table-row"
-                key={incident.id}
+                key={incident.incident_id}
               >
 
                 <span>
@@ -297,38 +280,24 @@ function AdminDashboard() {
 
           <div className="quick-actions">
 
-            <button
-              onClick={() => {
-                window.location.href = "/users";
-              }}
-            >
+            <button onClick={() => navigate("/users")}>
               <span>👥</span>
               Manage Users
             </button>
 
-            <button
-              onClick={() => {
-                window.location.href = "/incidents";
-              }}
-            >
+            <button onClick={() => navigate("/incidents")}>
               <span>🚨</span>
               View Incidents
             </button>
 
-            <button
-              onClick={() => {
-                window.location.href = "/watchmen";
-              }}
-            >
+            <button onClick={() => navigate("/watchmen")}>
               <span>👮</span>
               View Watchmen
             </button>
-
-            <button>
+            <button onClick={() => navigate("/reports")}>
               <span>📊</span>
               View Reports
             </button>
-
           </div>
 
         </section>

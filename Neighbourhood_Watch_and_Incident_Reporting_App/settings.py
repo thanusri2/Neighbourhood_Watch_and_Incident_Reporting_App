@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,20 +32,18 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    
-    'rest_framework',
-    'corsheaders',
-    
-    'users',
-    'incidents',
-    'notifications',
-    'activity_logs',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+
+    "users",
+    "incidents",
+    "notifications",
+    "activity_logs",
+    "reports",
 ]
 
 MIDDLEWARE = [
@@ -84,17 +83,18 @@ WSGI_APPLICATION = 'Neighbourhood_Watch_and_Incident_Reporting_App.wsgi.applicat
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'neighbourhood',
-        'USER': 'root',
-        'PASSWORD': 'P@pu@2007#',
-        'HOST': '127.0.0.1',
-        'PORT': '3307',
+        'NAME': 'defaultdb',
+        'USER': 'avnadmin',
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': 'mysql-3ef79704-community-sentinel.b.aivencloud.com',
+        'PORT': '25559',
+        'OPTIONS': {
+            'ssl': {
+                'ca': r'C:\Users\THANUSREE\Downloads\ca.pem',
+            },
+        },
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
