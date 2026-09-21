@@ -25,6 +25,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
+    "neighbourhood-watch-and-incident-h09c.onrender.com"
     "neighbourhood-watch-and-incident.onrender.com",
     "localhost",
     "127.0.0.1",
