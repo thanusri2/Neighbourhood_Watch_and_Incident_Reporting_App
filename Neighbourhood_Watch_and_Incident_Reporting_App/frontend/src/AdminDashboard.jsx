@@ -164,7 +164,7 @@ function AdminDashboard() {
             <div>
               <p>Total Users</p>
               <h2>
-                {loading ? "..." : dashboard?.total_users}
+                {loading ? "..." : dashboard?.total_users ?? 0}
               </h2>
             </div>
 
@@ -179,7 +179,7 @@ function AdminDashboard() {
             <div>
               <p>Total Incidents</p>
               <h2>
-                {loading ? "..." : dashboard?.total_incidents}
+                {loading ? "..." : dashboard?.total_incidents??0}
               </h2>
             </div>
 
@@ -209,7 +209,7 @@ function AdminDashboard() {
             <div>
               <p>Pending Incidents</p>
               <h2>
-                {loading ? "..." : dashboard?.pending_incidents}
+                {loading ? "..." : dashboard?.pending_incidents??0}
               </h2>
             </div>
 
