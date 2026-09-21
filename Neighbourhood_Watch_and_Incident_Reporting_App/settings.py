@@ -90,7 +90,7 @@ DATABASES = {
         'PORT': '25559',
         'OPTIONS': {
             'ssl': {
-                'ca': r'C:\Users\THANUSREE\Downloads\ca.pem',
+                'ca': BASE_DIR / 'ca.pem',
             },
         },
     }
