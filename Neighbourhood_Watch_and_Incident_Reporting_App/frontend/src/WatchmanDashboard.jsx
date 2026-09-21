@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://neighbourhood-watch-and-incident-h09c.onrender.com";
 
 function WatchmanDashboard() {
   const username = sessionStorage.getItem("username");
@@ -14,7 +13,6 @@ function WatchmanDashboard() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
 
-  // FETCH NOTIFICATIONS
   const fetchNotifications = async (userId) => {
     try {
       const response = await fetch(

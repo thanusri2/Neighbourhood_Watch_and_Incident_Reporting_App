@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://neighbourhood-watch-and-incident-h09c.onrender.com";
 
 function AdminDashboard() {
   const navigate = useNavigate();

@@ -12,7 +12,7 @@ function Users() {
   const fetchUsers = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/users/list/"
+        "https://neighbourhood-watch-and-incident-h09c.onrender.com/api/users/list/"
       );
 
       if (!response.ok) {
@@ -45,7 +45,7 @@ function Users() {
       setUpdatingUser(user.id);
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/users/update-status/",
+        "https://neighbourhood-watch-and-incident-h09c.onrender.com/api/users/update-status/",
         {
           method: "PUT",
           headers: {

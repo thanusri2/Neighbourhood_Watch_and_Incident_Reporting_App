@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://neighbourhood-watch-and-incident-h09c.onrender.com";
 
 function Assignments() {
   const [assignments, setAssignments] = useState([]);
@@ -16,10 +16,6 @@ function Assignments() {
 
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
-
-  // =========================
-  // FETCH DATA
-  // =========================
 
   const fetchData = async () => {
     try {
@@ -55,14 +51,12 @@ function Assignments() {
 
       setAssignments(incidentsList);
 
-      // Only WATCHMAN users
       setWatchmen(
         usersList.filter(
           (user) => user.role === "WATCHMAN"
         )
       );
 
-      // Only INCHARGE users
       setIncharges(
         usersList.filter(
           (user) => user.role === "INCHARGE"
@@ -87,20 +81,12 @@ function Assignments() {
     fetchData();
   }, []);
 
-  // =========================
-  // AVAILABLE INCIDENTS
-  // =========================
-
   const availableIncidents = assignments.filter(
     (incident) =>
       incident.status !== "RESOLVED" &&
       incident.status !== "CLOSED" &&
       !incident.watchman
   );
-
-  // =========================
-  // ASSIGN WATCHMAN
-  // =========================
 
   const handleAssign = async (event) => {
     event.preventDefault();
@@ -122,14 +108,12 @@ function Assignments() {
       return;
     }
 
-    // Find selected incident
     const incident = assignments.find(
       (item) =>
         String(item.id) ===
         String(selectedIncident)
     );
 
-    // Prevent duplicate assignment
     if (
       incident?.watchman ||
       incident?.status === "RESOLVED" ||
@@ -173,19 +157,16 @@ function Assignments() {
         );
       }
 
-      // Success message
       setMessage(
         `Incident #${data.incident_id} assigned successfully to ${data.watchman}.`
       );
 
       setMessageType("success");
 
-      // Clear selections
       setSelectedIncident("");
       setSelectedWatchman("");
       setSelectedIncharge("");
 
-      // Refresh assignments
       await fetchData();
 
     } catch (error) {
@@ -310,10 +291,6 @@ function Assignments() {
           </div>
 
         </header>
-
-        {/* ========================= */}
-        {/* ASSIGN WATCHMAN SECTION */}
-        {/* ========================= */}
 
         <section className="dashboard-section">
 
@@ -573,10 +550,6 @@ function Assignments() {
           </form>
 
         </section>
-
-        {/* ========================= */}
-        {/* ASSIGNMENTS TABLE */}
-        {/* ========================= */}
 
         <section className="dashboard-section">
 

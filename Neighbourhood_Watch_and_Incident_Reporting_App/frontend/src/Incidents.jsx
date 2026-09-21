@@ -9,7 +9,7 @@ function Incidents() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/incidents/list/")
+    fetch("https://neighbourhood-watch-and-incident-h09c.onrender.com/api/incidents/list/")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch incidents");

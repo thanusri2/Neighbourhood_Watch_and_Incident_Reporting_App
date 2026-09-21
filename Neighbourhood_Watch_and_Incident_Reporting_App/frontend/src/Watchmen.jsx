@@ -15,10 +15,10 @@ function Watchmen() {
         const [usersResponse, incidentsResponse] =
           await Promise.all([
             fetch(
-              "http://127.0.0.1:8000/api/users/list/"
+              "https://neighbourhood-watch-and-incident-h09c.onrender.com/api/users/list/"
             ),
             fetch(
-              "http://127.0.0.1:8000/api/incidents/list/"
+              "https://neighbourhood-watch-and-incident-h09c.onrender.com/api/incidents/list/"
             ),
           ]);
 
