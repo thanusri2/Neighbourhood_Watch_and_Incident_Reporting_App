@@ -1,10 +1,11 @@
 import { useState } from "react";
 import "./App.css";
 import {
-  BrowserRouter,
+  HashRouter,
   Routes,
   Route,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
 
 import AdminDashboard from "./AdminDashboard";
@@ -17,7 +18,12 @@ import InchargeDashboard from "./InchargeDashboard";
 import WatchmanDashboard from "./WatchmanDashboard";
 import ResidentDashboard from "./ResidentDashboard";
 
+const API_BASE =
+  "https://neighbourhood-watch-and-incident-h09c.onrender.com";
+
 function Login() {
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +39,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "https://neighbourhood-watch-and-incident-h09c.onrender.com/api/users/login/",
+        `${API_BASE}/api/users/login/`,
         {
           method: "POST",
           headers: {
@@ -71,17 +77,18 @@ function Login() {
       );
 
       if (data.role === "ADMIN") {
-        window.location.href = "/admin-dashboard";
+        navigate("/admin-dashboard");
       } else if (data.role === "RESIDENT") {
-        window.location.href = "/resident-dashboard";
+        navigate("/resident-dashboard");
       } else if (data.role === "WATCHMAN") {
-        window.location.href = "/watchman-dashboard";
+        navigate("/watchman-dashboard");
       } else if (data.role === "INCHARGE") {
-        window.location.href = "/incharge-dashboard";
+        navigate("/incharge-dashboard");
       } else {
         alert("Unknown user role.");
         sessionStorage.clear();
       }
+
     } catch (error) {
       console.error("Login error:", error);
       alert("Cannot connect to Django server");
@@ -129,7 +136,9 @@ function Login() {
                 type="text"
                 placeholder="Enter your username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) =>
+                  setUsername(e.target.value)
+                }
                 autoComplete="username"
               />
 
@@ -145,7 +154,9 @@ function Login() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
                   autoComplete="current-password"
                 />
 
@@ -183,6 +194,7 @@ function Login() {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
+
                   alert(
                     "Please contact the administrator to reset your password."
                   );
@@ -210,6 +222,7 @@ function Login() {
               href="#"
               onClick={(e) => {
                 e.preventDefault();
+
                 alert(
                   "Registration is currently handled by the administrator."
                 );
@@ -229,6 +242,7 @@ function Login() {
 }
 
 function ProtectedRoute({ children }) {
+
   const isLoggedIn =
     sessionStorage.getItem("isLoggedIn") === "true";
 
@@ -243,13 +257,19 @@ function ProtectedRoute({ children }) {
 }
 
 function App() {
+
   return (
-    <BrowserRouter>
+    <HashRouter>
 
       <Routes>
 
-        <Route path="/" element={<Login />} />
+        {/* Login */}
+        <Route
+          path="/"
+          element={<Login />}
+        />
 
+        {/* Admin Dashboard */}
         <Route
           path="/admin-dashboard"
           element={
@@ -259,6 +279,7 @@ function App() {
           }
         />
 
+        {/* Users */}
         <Route
           path="/users"
           element={
@@ -268,6 +289,7 @@ function App() {
           }
         />
 
+        {/* Incidents */}
         <Route
           path="/incidents"
           element={
@@ -277,6 +299,7 @@ function App() {
           }
         />
 
+        {/* Watchmen */}
         <Route
           path="/watchmen"
           element={
@@ -286,6 +309,7 @@ function App() {
           }
         />
 
+        {/* Reports */}
         <Route
           path="/reports"
           element={
@@ -295,32 +319,35 @@ function App() {
           }
         />
 
-        <Route 
-          path="/assignments" 
-          element={ 
-            <ProtectedRoute> 
-              <Assignments /> 
-            </ProtectedRoute> 
-          } 
+        {/* Assignments */}
+        <Route
+          path="/assignments"
+          element={
+            <ProtectedRoute>
+              <Assignments />
+            </ProtectedRoute>
+          }
         />
+
+        {/* Incharge Dashboard */}
         <Route
           path="/incharge-dashboard"
-          element={
-            <InchargeDashboard />
-          }
+          element={<InchargeDashboard />}
         />
+
+        {/* Watchman Dashboard */}
         <Route
           path="/watchman-dashboard"
-          element={
-            <WatchmanDashboard />
-          }
+          element={<WatchmanDashboard />}
         />
+
+        {/* Resident Dashboard */}
         <Route
           path="/resident-dashboard"
-          element={
-            <ResidentDashboard />
-          }
+          element={<ResidentDashboard />}
         />
+
+        {/* Unknown Route */}
         <Route
           path="*"
           element={<Navigate to="/" replace />}
@@ -328,7 +355,7 @@ function App() {
 
       </Routes>
 
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
