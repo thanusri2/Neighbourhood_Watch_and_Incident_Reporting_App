@@ -7,7 +7,64 @@ from reports.models import Report
 from notifications.models import Notification
 import json
 
+@csrf_exempt
+def create_user(request):
 
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "Only POST method is allowed"},
+            status=405
+        )
+
+    try:
+        data = json.loads(request.body)
+
+        username = data.get("username")
+        password = data.get("password")
+        email = data.get("email", "")
+        phone = data.get("phone", "")
+        role = data.get("role")
+
+        if not username or not password or not role:
+            return JsonResponse({
+                "error": "Username, password and role are required"
+            }, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({
+                "error": "Username already exists"
+            }, status=400)
+
+        if role not in ["RESIDENT", "WATCHMAN", "INCHARGE"]:
+            return JsonResponse({
+                "error": "Invalid role"
+            }, status=400)
+
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            email=email,
+            phone=phone,
+            role=role
+        )
+
+        return JsonResponse({
+            "message": "User created successfully",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "phone": user.phone,
+                "role": user.role,
+                "is_active": user.is_active
+            }
+        }, status=201)
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            "error": "Invalid JSON"
+        }, status=400)
+        
 @csrf_exempt
 def login_view(request):
 
