@@ -9,7 +9,7 @@ function Users() {
   const [updatingUser, setUpdatingUser] = useState(null);
   const [showAddUser, setShowAddUser] = useState(false);
   const [creatingUser, setCreatingUser] = useState(false);
-  const [newUser, setNewUser] = useState({username: "",password: "",email: "",phone: "",role: "RESIDENT",});
+  const [newUser, setNewUser] = useState({username: "",password: "",email: "",phone: "",role: "RESIDENT",badge_number: "",shift: "",});
 
   const fetchUsers = async () => {
     try {
@@ -131,8 +131,7 @@ function Users() {
 
       alert("User created successfully!");
 
-      setNewUser({username: "",password: "",email: "",phone: "",role: "RESIDENT",});
-
+      setNewUser({username: "",password: "",email: "",phone: "",role: "RESIDENT",badge_number: "",shift: "",});
       setShowAddUser(false);
 
       await fetchUsers();
@@ -367,7 +366,25 @@ function Users() {
                     Admin
                   </option>
                 </select>
+                {newUser.role === "WATCHMAN" && (
+                  <>
+                    <input
+                      type="text"
+                      name="badge_number"
+                      placeholder="Badge Number"
+                      value={newUser.badge_number}
+                      onChange={handleInputChange}
+                    />
 
+                    <input
+                      type="text"
+                      name="shift"
+                      placeholder="Shift"
+                      value={newUser.shift}
+                      onChange={handleInputChange}
+                    />
+                  </>
+                )}
               </div>
 
               <div

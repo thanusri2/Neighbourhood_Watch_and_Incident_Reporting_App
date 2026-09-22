@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import User
+from .models import User, Watchman
 from incidents.models import Incident
 from reports.models import Report
 from notifications.models import Notification
@@ -25,11 +25,14 @@ def create_user(request):
         phone = data.get("phone", "")
         role = data.get("role")
 
+        badge_number = data.get("badge_number", "")
+        shift = data.get("shift", "")
+
         if not username or not password or not role:
             return JsonResponse({
                 "error": "Username, password and role are required"
             }, status=400)
-
+            
         if User.objects.filter(username=username).exists():
             return JsonResponse({
                 "error": "Username already exists"
@@ -48,6 +51,31 @@ def create_user(request):
             role=role
         )
 
+        if role == "WATCHMAN":
+            if not badge_number or not shift:
+
+                user.delete()
+
+                return JsonResponse({
+                    "error": "Badge number and shift are required for watchman"
+                }, status=400)
+
+            if Watchman.objects.filter(
+                badge_number=badge_number
+            ).exists():
+
+                user.delete()
+
+                return JsonResponse({
+                    "error": "Badge number already exists"
+                }, status=400)
+
+            Watchman.objects.create(
+                user=user,
+                badge_number=badge_number,
+                shift=shift
+            )
+
         return JsonResponse({
             "message": "User created successfully",
             "user": {
@@ -64,7 +92,8 @@ def create_user(request):
         return JsonResponse({
             "error": "Invalid JSON"
         }, status=400)
-        
+
+
 @csrf_exempt
 def login_view(request):
 
@@ -73,6 +102,7 @@ def login_view(request):
             {"error": "Only POST method is allowed"},
             status=405
         )
+
     try:
         data = json.loads(request.body)
 
@@ -135,6 +165,8 @@ def users_list(request):
         })
 
     return JsonResponse(data, safe=False)
+
+
 @csrf_exempt
 def update_user_status(request):
 
@@ -157,13 +189,17 @@ def update_user_status(request):
 
         try:
             user = User.objects.get(id=user_id)
+
         except User.DoesNotExist:
             return JsonResponse({
                 "error": "User not found"
             }, status=404)
 
         user.is_active = is_active
-        user.save(update_fields=["is_active"])
+
+        user.save(
+            update_fields=["is_active"]
+        )
 
         return JsonResponse({
             "message": "User status updated successfully",
@@ -176,6 +212,8 @@ def update_user_status(request):
         return JsonResponse({
             "error": "Invalid JSON"
         }, status=400)
+
+
 @csrf_exempt
 def admin_dashboard(request):
 
@@ -184,29 +222,50 @@ def admin_dashboard(request):
             {"error": "Only GET method is allowed"},
             status=405
         )
-    data = {
-        "total_users": User.objects.count(),
 
-        "total_incidents": Incident.objects.count(),
-        "pending_incidents": Incident.objects.filter(
-            status="PENDING"
-        ).count(),
-        "assigned_incidents": Incident.objects.filter(
-            status="ASSIGNED"
-        ).count(),
-        "under_investigation": Incident.objects.filter(
-            status="UNDER_INVESTIGATION"
-        ).count(),
-        "resolved_incidents": Incident.objects.filter(
-            status="RESOLVED"
-        ).count(),
-        "closed_incidents": Incident.objects.filter(
-            status="CLOSED"
-        ).count(),
-        "total_reports": Report.objects.count(),
-        "total_notifications": Notification.objects.count(),
+    data = {
+
+        "total_users":
+            User.objects.count(),
+
+        "total_incidents":
+            Incident.objects.count(),
+
+        "pending_incidents":
+            Incident.objects.filter(
+                status="PENDING"
+            ).count(),
+
+        "assigned_incidents":
+            Incident.objects.filter(
+                status="ASSIGNED"
+            ).count(),
+
+        "under_investigation":
+            Incident.objects.filter(
+                status="UNDER_INVESTIGATION"
+            ).count(),
+
+        "resolved_incidents":
+            Incident.objects.filter(
+                status="RESOLVED"
+            ).count(),
+
+        "closed_incidents":
+            Incident.objects.filter(
+                status="CLOSED"
+            ).count(),
+
+        "total_reports":
+            Report.objects.count(),
+
+        "total_notifications":
+            Notification.objects.count(),
     }
-    return JsonResponse(data)     
+
+    return JsonResponse(data)
+
+
 @csrf_exempt
 def register_resident(request):
 
@@ -258,4 +317,3 @@ def register_resident(request):
         return JsonResponse({
             "error": "Invalid JSON"
         }, status=400)
-        
