@@ -63,6 +63,7 @@ function Login() {
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("username", data.username);
       sessionStorage.setItem("userRole", data.role);
+      sessionStorage.setItem("userId", data.user_id);
 
       if (rememberMe) {
         localStorage.setItem(

@@ -98,6 +98,7 @@ def login_view(request):
 
         return JsonResponse({
             "message": "Login successful",
+            "user_id": user.id,
             "username": user.username,
             "role": user.role,
         })

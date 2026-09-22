@@ -4,6 +4,7 @@ const API_BASE = "https://neighbourhood-watch-and-incident-h09c.onrender.com";
 function ResidentDashboard() {
   const username =
     sessionStorage.getItem("username") || "Resident";
+  const userId = sessionStorage.getItem("userId");
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -15,9 +16,8 @@ function ResidentDashboard() {
   const fetchNotifications = async () => {
     try {
       const response = await fetch(
-        `${API_BASE}/api/notifications/user/2/`
+        `${API_BASE}/api/notifications/user/${userId}/`
       );
-
       if (!response.ok) {
         throw new Error("Failed to fetch notifications");
       }
@@ -66,7 +66,7 @@ function ResidentDashboard() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            resident_id: 2,
+            resident_id: Number(userId),
             category_id: Number(category),
             title: title,
             description: description,
