@@ -481,7 +481,7 @@ function Users() {
                   >
 
                     <span>
-                      #{user.id}
+                      #{users.indexOf(user) + 1}
                     </span>
 
                     <span>
