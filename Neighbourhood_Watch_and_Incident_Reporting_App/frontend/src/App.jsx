@@ -17,6 +17,7 @@ import Assignments from "./Assignments";
 import InchargeDashboard from "./InchargeDashboard";
 import WatchmanDashboard from "./WatchmanDashboard";
 import ResidentDashboard from "./ResidentDashboard";
+import Register from "./Register";
 
 const API_BASE =
   "https://neighbourhood-watch-and-incident-h09c.onrender.com";
@@ -222,10 +223,7 @@ function Login() {
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-
-                alert(
-                  "Registration is currently handled by the administrator."
-                );
+                navigate("/register");
               }}
             >
               {" "}Register
@@ -268,7 +266,10 @@ function App() {
           path="/"
           element={<Login />}
         />
-
+        <Route
+          path="/register"
+          element={<Register />}
+        />
         {/* Admin Dashboard */}
         <Route
           path="/admin-dashboard"
