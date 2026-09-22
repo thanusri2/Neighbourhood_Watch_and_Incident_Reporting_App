@@ -3,14 +3,18 @@ import { useNavigate } from "react-router-dom";
 
 function Users() {
   const navigate = useNavigate();
-
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingUser, setUpdatingUser] = useState(null);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [creatingUser, setCreatingUser] = useState(false);
+  const [newUser, setNewUser] = useState({username: "",password: "",email: "",phone: "",role: "RESIDENT",});
 
   const fetchUsers = async () => {
     try {
+      setLoading(true);
+
       const response = await fetch(
         "https://neighbourhood-watch-and-incident-h09c.onrender.com/api/users/list/"
       );
@@ -76,19 +80,78 @@ function Users() {
             : currentUser
         )
       );
-
     } catch (error) {
       console.error(error);
-      alert("Failed to update user status");
+      alert(error.message || "Failed to update user status");
     } finally {
       setUpdatingUser(null);
     }
   };
 
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+
+    setNewUser((currentUser) => ({
+      ...currentUser,
+      [name]: value,
+    }));
+  };
+
+  const createUser = async () => {
+    if (
+      !newUser.username ||
+      !newUser.password ||
+      !newUser.email
+    ) {
+      alert("Please fill Username, Password and Email.");
+      return;
+    }
+
+    try {
+      setCreatingUser(true);
+
+      const response = await fetch(
+        "https://neighbourhood-watch-and-incident-h09c.onrender.com/api/users/create/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newUser),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Failed to create user"
+        );
+      }
+
+      alert("User created successfully!");
+
+      setNewUser({username: "",password: "",email: "",phone: "",role: "RESIDENT",});
+
+      setShowAddUser(false);
+
+      await fetchUsers();
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Failed to create user");
+    } finally {
+      setCreatingUser(false);
+    }
+  };
+
+  const logout = () => {
+    sessionStorage.clear();
+    navigate("/");
+  };
+
   return (
     <div className="admin-page">
 
-      {/* SIDEBAR */}
       <aside className="admin-sidebar">
 
         <div className="admin-logo">
@@ -145,30 +208,28 @@ function Users() {
         </nav>
 
         {/* LOGOUT */}
+
         <button
           className="logout-button"
-          onClick={() => {
-            sessionStorage.clear();
-            navigate("/");
-          }}
+          onClick={logout}
         >
           🚪 Logout
         </button>
 
       </aside>
 
-      {/* MAIN CONTENT */}
       <main className="admin-main">
 
         {/* HEADER */}
+
         <header className="admin-header">
 
           <div>
             <h1>Users</h1>
 
             <p>
-              Manage neighbourhood users and their
-              account status.
+              Manage neighbourhood users and
+              their account status.
             </p>
           </div>
 
@@ -187,7 +248,6 @@ function Users() {
 
         </header>
 
-        {/* USERS SECTION */}
         <section className="dashboard-section">
 
           <div className="section-header">
@@ -196,51 +256,180 @@ function Users() {
               <h2>All Users</h2>
 
               <p>
-                View user details and manage account status.
+                View user details and manage
+                account status.
               </p>
             </div>
 
-            <button
-              onClick={() =>
-                navigate("/admin-dashboard")
-              }
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+              }}
             >
-              Back to Dashboard
-            </button>
+
+              <button
+                onClick={() =>
+                  setShowAddUser(!showAddUser)
+                }
+              >
+                ➕ Add User
+              </button>
+
+              <button
+                onClick={() =>
+                  navigate("/admin-dashboard")
+                }
+              >
+                Back to Dashboard
+              </button>
+
+            </div>
 
           </div>
 
-          {/* LOADING */}
+          {showAddUser && (
+
+            <div
+              style={{
+                marginTop: "20px",
+                padding: "20px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "12px",
+                background: "#ffffff",
+              }}
+            >
+
+              <h2>
+                Create New User
+              </h2>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(2, 1fr)",
+                  gap: "15px",
+                  marginTop: "15px",
+                }}
+              >
+
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  value={newUser.username}
+                  onChange={handleInputChange}
+                />
+
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  value={newUser.password}
+                  onChange={handleInputChange}
+                />
+
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={newUser.email}
+                  onChange={handleInputChange}
+                />
+
+                <input
+                  type="text"
+                  name="phone"
+                  placeholder="Phone"
+                  value={newUser.phone}
+                  onChange={handleInputChange}
+                />
+
+                <select
+                  name="role"
+                  value={newUser.role}
+                  onChange={handleInputChange}
+                >
+                  <option value="RESIDENT">
+                    Resident
+                  </option>
+
+                  <option value="WATCHMAN">
+                    Watchman
+                  </option>
+
+                  <option value="INCHARGE">
+                    Incharge
+                  </option>
+
+                  <option value="ADMIN">
+                    Admin
+                  </option>
+                </select>
+
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  marginTop: "20px",
+                }}
+              >
+
+                <button
+                  onClick={createUser}
+                  disabled={creatingUser}
+                >
+                  {creatingUser
+                    ? "Creating..."
+                    : "Create User"}
+                </button>
+
+                <button
+                  onClick={() =>
+                    setShowAddUser(false)
+                  }
+                  disabled={creatingUser}
+                >
+                  Cancel
+                </button>
+
+              </div>
+
+            </div>
+
+          )}
+
           {loading && (
             <p>
               Loading users...
             </p>
           )}
 
-          {/* ERROR */}
           {error && (
             <p style={{ color: "red" }}>
               {error}
             </p>
           )}
 
-          {/* NO USERS */}
           {!loading &&
             !error &&
             users.length === 0 && (
+
               <p>
                 No users found.
               </p>
+
             )}
 
-          {/* USERS TABLE */}
           {!loading &&
             !error &&
             users.length > 0 && (
 
               <div className="incident-table">
 
-                {/* TABLE HEADER */}
                 <div
                   className="table-header"
                   style={{
@@ -249,33 +438,20 @@ function Users() {
                   }}
                 >
 
-                  <span>
-                    ID
-                  </span>
+                  <span>ID</span>
 
-                  <span>
-                    Username
-                  </span>
+                  <span>Username</span>
 
-                  <span>
-                    Email
-                  </span>
+                  <span>Email</span>
 
-                  <span>
-                    Phone
-                  </span>
+                  <span>Phone</span>
 
-                  <span>
-                    Role
-                  </span>
+                  <span>Role</span>
 
-                  <span>
-                    Status
-                  </span>
+                  <span>Status</span>
 
                 </div>
 
-                {/* TABLE ROWS */}
                 {users.map((user) => (
 
                   <div
@@ -287,34 +463,28 @@ function Users() {
                     }}
                   >
 
-                    {/* ID */}
                     <span>
                       #{user.id}
                     </span>
 
-                    {/* USERNAME */}
                     <span>
                       <strong>
                         {user.username || "---"}
                       </strong>
                     </span>
 
-                    {/* EMAIL */}
                     <span>
                       {user.email || "---"}
                     </span>
 
-                    {/* PHONE */}
                     <span>
                       {user.phone || "---"}
                     </span>
 
-                    {/* ROLE */}
                     <span>
                       {user.role || "---"}
                     </span>
 
-                    {/* STATUS + ACTION */}
                     <span>
 
                       <div
@@ -349,7 +519,8 @@ function Users() {
                             border: "none",
                             borderRadius: "6px",
                             cursor:
-                              updatingUser === user.id
+                              updatingUser ===
+                              user.id
                                 ? "not-allowed"
                                 : "pointer",
                           }}
@@ -375,18 +546,18 @@ function Users() {
 
         </section>
 
-        {/* USER SUMMARY */}
         {!loading &&
           !error &&
           users.length > 0 && (
 
             <section className="dashboard-section">
 
-              <h2>User Summary</h2>
+              <h2>
+                User Summary
+              </h2>
 
               <div className="quick-actions">
 
-                {/* TOTAL USERS */}
                 <div
                   style={{
                     padding: "20px",
@@ -410,7 +581,6 @@ function Users() {
 
                 </div>
 
-                {/* ACTIVE USERS */}
                 <div
                   style={{
                     padding: "20px",
@@ -427,7 +597,8 @@ function Users() {
                   <h2>
                     {
                       users.filter(
-                        (user) => user.is_active
+                        (user) =>
+                          user.is_active
                       ).length
                     }
                   </h2>
@@ -438,7 +609,6 @@ function Users() {
 
                 </div>
 
-                {/* RESIDENTS */}
                 <div
                   style={{
                     padding: "20px",
@@ -456,7 +626,8 @@ function Users() {
                     {
                       users.filter(
                         (user) =>
-                          user.role === "RESIDENT"
+                          user.role ===
+                          "RESIDENT"
                       ).length
                     }
                   </h2>
@@ -468,6 +639,7 @@ function Users() {
                 </div>
 
                 {/* WATCHMEN */}
+
                 <div
                   style={{
                     padding: "20px",
@@ -485,7 +657,8 @@ function Users() {
                     {
                       users.filter(
                         (user) =>
-                          user.role === "WATCHMAN"
+                          user.role ===
+                          "WATCHMAN"
                       ).length
                     }
                   </h2>
@@ -507,4 +680,5 @@ function Users() {
     </div>
   );
 }
+
 export default Users;
