@@ -206,3 +206,55 @@ def admin_dashboard(request):
         "total_notifications": Notification.objects.count(),
     }
     return JsonResponse(data)     
+@csrf_exempt
+def register_resident(request):
+
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "Only POST method is allowed"},
+            status=405
+        )
+
+    try:
+        data = json.loads(request.body)
+
+        username = data.get("username")
+        password = data.get("password")
+        email = data.get("email", "")
+        phone = data.get("phone", "")
+
+        if not username or not password or not email:
+            return JsonResponse({
+                "error": "Username, password and email are required"
+            }, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({
+                "error": "Username already exists"
+            }, status=400)
+
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            email=email,
+            phone=phone,
+            role="RESIDENT"
+        )
+
+        return JsonResponse({
+            "message": "Resident registration successful",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "phone": user.phone,
+                "role": user.role,
+                "is_active": user.is_active
+            }
+        }, status=201)
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            "error": "Invalid JSON"
+        }, status=400)
+        

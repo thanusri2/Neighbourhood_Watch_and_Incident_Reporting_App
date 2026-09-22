@@ -5,19 +5,14 @@ from .views import (
     users_list,
     update_user_status,
     admin_dashboard,
-    create_user
+    create_user,register_resident
 )
 
 urlpatterns = [
-
     path("login/", login_view, name="login"),
-
     path("list/", users_list, name="users_list"),
-
     path("update-status/", update_user_status, name="update_user_status"),
-
     path("dashboard/", admin_dashboard, name="admin_dashboard"),
-
     path("create/", create_user, name="create_user"),
-
+    path("register/", register_resident, name="register_resident"),
 ]
